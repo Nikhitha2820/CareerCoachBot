@@ -1,3 +1,4 @@
+const uploadRouter = require("./upload");
 const express = require("express");
 const session = require("express-session");
 const SQLiteStore = require("connect-sqlite3");
@@ -29,6 +30,8 @@ app.use(cors({
 }));
 
 app.use(express.json());
+app.use("/upload", uploadRouter);
+
 
 // sqlite db
 const db = new Database("users.db");
@@ -80,6 +83,16 @@ app.post("/api/logout", (req, res) => {
     res.json({ message: "Logged out" });
   });
 });
+
+// protected route
+app.get("/api/protected", (req, res) => {
+  if (req.session.userId) {
+    res.json({ message: "This is protected data!", user: req.session.userId });
+  } else {
+    res.status(401).json({ message: "Unauthorized" });
+  }
+});
+
 
 app.listen(port, () => {
   console.log(`Server listening on http://localhost:${port}`);
